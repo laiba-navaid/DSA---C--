@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+// last node ka next pointer front ko point karta hai in Circular Queue 
+
 struct Node {
     int data;
     Node* next;
