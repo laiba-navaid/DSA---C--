@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-// ---------------- STRUCTS ----------------
+// STRUCTS 
 struct SNode {
     int SNO;       // Student Seat Number
     SNode* SNext;  // Pointer to next student
@@ -15,7 +15,7 @@ struct CNode {
 
 CNode* CList = NULL; // Start of course list
 
-// ---------------- COURSE FUNCTIONS ----------------
+// COURSE FUNCTIONS
 
 // Add a course
 void addCourse(int cno) {
@@ -113,7 +113,7 @@ void displayCourses() {
     cout << endl;
 }
 
-// ---------------- STUDENT FUNCTIONS ----------------
+//  STUDENT FUNCTIONS
 
 // Add student to a course
 void addStudent(int cno, int sno) {
