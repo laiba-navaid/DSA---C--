@@ -1,0 +1,316 @@
+#include<iostream>
+using namespace std;
+
+struct AVLNode
+{
+    int data;
+    AVLNode* left;
+    AVLNode* right;
+    int height;
+};
+
+int height(AVLNode* node)
+{
+    if(node == NULL)
+        return -1;
+
+    return node->height;
+}
+
+int maximum(int a, int b)
+{
+    if(a > b)
+        return a;
+    else
+        return b;
+}
+
+// RR (Shift Left) 
+AVLNode* rotateLeft(AVLNode* cur)
+{
+    AVLNode* temp = cur;
+    cur = cur->right;
+
+    AVLNode* temp2 = cur->left;
+
+    cur->left = temp;
+    temp->right = temp2;
+
+    temp->height = maximum(height(temp->left), height(temp->right)) + 1;
+    cur->height = maximum(height(cur->left), height(cur->right)) + 1;
+
+    return cur;
+}
+
+// LL (Shift Right) 
+AVLNode* rotateRight(AVLNode* cur)
+{
+    AVLNode* temp = cur;
+    cur = cur->left;
+
+    AVLNode* temp2 = cur->right;
+
+    cur->right = temp;
+    temp->left = temp2;
+
+    temp->height = maximum(height(temp->left), height(temp->right)) + 1;
+    cur->height = maximum(height(cur->left), height(cur->right)) + 1;
+
+    return cur;
+}
+
+// RL (Double Shift) 
+AVLNode* rotateRightLeft(AVLNode* cur)
+{
+    cur->right = rotateRight(cur->right);
+
+    return rotateLeft(cur);
+}
+
+// LR (Double Shift) 
+AVLNode* rotateLeftRight(AVLNode* cur)
+{
+    cur->left = rotateLeft(cur->left);
+
+    return rotateRight(cur);
+}
+
+AVLNode* insertAVL(AVLNode* node, int value)
+{
+    if(node == NULL)
+    {
+        AVLNode* temp = new AVLNode;
+
+        temp->data = value;
+        temp->left = NULL;
+        temp->right = NULL;
+        temp->height = 0;
+
+        return temp;
+    }
+
+    if(value < node->data)
+    {
+        node->left = insertAVL(node->left, value);
+
+        if(height(node->left) - height(node->right) == 2)
+        {
+            if(value < node->left->data)
+                node = rotateRight(node);
+            else
+                node = rotateLeftRight(node);
+        }
+    }
+    else if(value > node->data)
+    {
+        node->right = insertAVL(node->right, value);
+
+        if(height(node->right) - height(node->left) == 2)
+        {
+            if(value > node->right->data)
+                node = rotateLeft(node);
+            else
+                node = rotateRightLeft(node);
+        }
+    }
+
+    node->height = maximum(height(node->left), height(node->right)) + 1;
+
+    return node;
+}
+
+AVLNode* searchAVL(AVLNode* node, int value)
+{
+    if(node == NULL)
+        return NULL;
+
+    if(node->data == value)
+        return node;
+
+    if(value < node->data)
+        return searchAVL(node->left, value);
+
+    return searchAVL(node->right, value);
+}
+
+AVLNode* minimumNode(AVLNode* node)
+{
+    AVLNode* temp = node;
+
+    while(temp->left != NULL)
+        temp = temp->left;
+
+    return temp;
+}
+
+AVLNode* deleteAVL(AVLNode* node, int value)
+{
+    if(node == NULL)
+        return NULL;
+
+    if(value < node->data)
+        node->left = deleteAVL(node->left, value);
+
+    else if(value > node->data)
+        node->right = deleteAVL(node->right, value);
+
+    else
+    {
+        if(node->left == NULL && node->right == NULL)
+        {
+            delete node;
+            return NULL;
+        }
+
+        else if(node->left == NULL)
+        {
+            AVLNode* temp = node->right;
+            delete node;
+            return temp;
+        }
+
+        else if(node->right == NULL)
+        {
+            AVLNode* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        else
+        {
+            AVLNode* temp = minimumNode(node->right);
+
+            node->data = temp->data;
+
+            node->right = deleteAVL(node->right, temp->data);
+        }
+    }
+
+    node->height = maximum(height(node->left), height(node->right)) + 1;
+
+    if(height(node->left) - height(node->right) == 2)
+    {
+        if(height(node->left->left) >= height(node->left->right))
+            node = rotateRight(node);
+        else
+            node = rotateLeftRight(node);
+    }
+
+    if(height(node->right) - height(node->left) == 2)
+    {
+        if(height(node->right->right) >= height(node->right->left))
+            node = rotateLeft(node);
+        else
+            node = rotateRightLeft(node);
+    }
+
+    return node;
+}
+
+void inorder(AVLNode* node)
+{
+    if(node != NULL)
+    {
+        inorder(node->left);
+        cout << node->data << " ";
+        inorder(node->right);
+    }
+}
+
+void preorder(AVLNode* node)
+{
+    if(node != NULL)
+    {
+        cout << node->data << " ";
+        preorder(node->left);
+        preorder(node->right);
+    }
+}
+
+void postorder(AVLNode* node)
+{
+    if(node != NULL)
+    {
+        postorder(node->left);
+        postorder(node->right);
+        cout << node->data << " ";
+    }
+}
+
+int main()
+{
+    AVLNode* root = NULL;
+
+    int choice;
+    int value;
+
+    do
+    {
+        cout << "\n1. Insert";
+        cout << "\n2. Search";
+        cout << "\n3. Delete";
+        cout << "\n4. Display(Inorder)";
+        cout << "\n5. Exit";
+
+        cout << "\nEnter Choice : ";
+        cin >> choice;
+
+        switch(choice)
+        {
+        case 1:
+
+            cout << "Enter Value : ";
+            cin >> value;
+
+            root = insertAVL(root, value);
+
+            break;
+
+        case 2:
+
+            cout << "Enter Value : ";
+            cin >> value;
+
+            if(searchAVL(root, value) != NULL)
+                cout << "Value Found.";
+
+            else
+                cout << "Value Not Found.";
+
+            break;
+
+        case 3:
+
+            cout << "Enter Value : ";
+            cin >> value;
+
+            root = deleteAVL(root, value);
+
+            break;
+
+        case 4:
+
+            cout << "AVL Tree : ";
+
+            inorder(root);
+
+            cout << endl;
+
+            break;
+
+        case 5:
+
+            cout << "Program Ended.";
+
+            break;
+
+        default:
+
+            cout << "Invalid Choice.";
+        }
+
+    }while(choice != 5);
+
+    return 0;
+}
+
